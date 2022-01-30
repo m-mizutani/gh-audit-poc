@@ -1,0 +1,19 @@
+name: "audit repository"
+
+on:
+  schedule:
+    - cron: "20 * * * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate repository
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: gh repo list -L 300 --json name,owner,isPrivate | opaq -u https://opa-server-h6tk4k5hyq-an.a.run.app/v1/data/github/fail --fail-defined
+      - name: notification
+        if: ${{ failure() }}
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
