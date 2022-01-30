@@ -13,7 +13,10 @@ jobs:
       - name: Evaluate repository
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: gh repo list -L 300 --json name,owner,isPrivate | opaq -u https://opa-server-h6tk4k5hyq-an.a.run.app/v1/data/github/fail --fail-defined
+        run: gh repo list -L 300 --json name,owner,isPrivate > output.json
+      - uses: docker://ghcr.io/m-mizutani/opaq:v0.1.0
+        with:
+          args: "-u https://opa-server-h6tk4k5hyq-an.a.run.app/v1/data/github/fail -i output.json --fail-defined"
       - name: notification
         if: ${{ failure() }}
         uses: rtCamp/action-slack-notify@v2
